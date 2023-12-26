@@ -10,6 +10,7 @@
             <h2 class="display-5 link-body-emphasis mb-1">{{ note.title | upper }}</h2>
             <p class="blog-post-meta">Создано: {{ note.created_at }}</p>
             <p class="blog-post-meta">Последнее изменение: {{ note.mod_time }}</p>
+            <p>{{ note.image }}</p>
         </div>
 
         <div class="btn-group" role="group" aria-label="Basic mixed styles example">
@@ -23,6 +24,12 @@
         </div>
 
         <hr>
+        
+        {% if note.image %}
+            <div class="d-flex justify-content-center">
+                <img style="max-height: 150px;" src="{{ note.image.url }}">
+            </div>
+        {% endif %}
         
         <div>{{ note.content | safe | linebreaks }}</div>
 
