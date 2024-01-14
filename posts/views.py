@@ -1,4 +1,4 @@
-from datetime import timezone
+from django.utils import timezone
 
 from django.shortcuts import render
 from django.urls import reverse
@@ -64,6 +64,7 @@ def filter_notes_view(request: WSGIRequest):
 
 def create_note_view(request: WSGIRequest):
     if request.method == "POST":
+        print(request.FILES)
         note = Note.objects.create(
             title=request.POST["title"],
             content=request.POST["content"],
@@ -100,6 +101,7 @@ def redact_note_view(request: WSGIRequest, note_uuid):
     if request.method == "POST":
         note.content = request.POST["content"]
         note.title = request.POST["title"]
+        note.mod_time = timezone.now()
         note.save()
         return HttpResponseRedirect(reverse('show-note', args=[note.uuid]))
 
