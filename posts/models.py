@@ -28,14 +28,14 @@ class Note(models.Model):
     title = models.CharField(max_length=255)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    image = models.ImageField(upload_to=upload_to, null=True)
+    image = models.ImageField(upload_to=upload_to, null=True, blank=True, verbose_name="Превью")
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     objects = models.Manager()  # Он подключается к базе.
     mod_time = models.DateTimeField(null=True, blank=True, db_index=True, default=None)
 
     class Meta:
         # db_table = 'notes'  # Название таблицы в базе.
-        ordering = ['-created_at']  # Дефис это означает DESC сортировку (обратную).
+        ordering = ['-mod_time']  # Дефис это означает DESC сортировку (обратную).
 
 
 @receiver(post_delete, sender=Note)
