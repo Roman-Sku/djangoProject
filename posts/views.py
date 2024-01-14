@@ -104,19 +104,20 @@ def redact_note_view(request: WSGIRequest, note_uuid):
     except Note.DoesNotExist:
         raise Http404
 
-    if request.method == "POST":
-        note.content = request.POST["content"]
-        note.title = request.POST["title"]
-        note.mod_time = timezone.now()
-        new_image = request.FILES.get("noteImage")
-        if new_image:
-            if note.image:
-                old_path = os.path.join(settings.MEDIA_ROOT, note.image.name)
-                if os.path.isfile(old_path):
-                    os.remove(old_path)
-            note.image = new_image
-        note.save()
-        return HttpResponseRedirect(reverse('show-note', args=[note.uuid]))
+    if request.user == note.user:
+        if request.method == "POST":
+            note.content = request.POST["content"]
+            note.title = request.POST["title"]
+            note.mod_time = timezone.now()
+            new_image = request.FILES.get("noteImage")
+            if new_image:
+                if note.image:
+                    old_path = os.path.join(settings.MEDIA_ROOT, note.image.name)
+                    if os.path.isfile(old_path):
+                        os.remove(old_path)
+                note.image = new_image
+            note.save()
+            return HttpResponseRedirect(reverse('show-note', args=[note.uuid]))
 
     return render(request, "redact-note.html", {"note": note})
 
