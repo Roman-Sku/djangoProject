@@ -37,4 +37,5 @@ urlpatterns = [
     path("user/<user_username>/posts", views.notes_by_user_view, name="notes_by_user"),
     re_path(r"^media/(?P<path>.*)$", serve, {"document_root": settings.MEDIA_ROOT}),
     path('ckeditor/', include('ckeditor_uploader.urls')),
+    path("profile/<username>", views.profile_view, name="profile-view"),
 ]

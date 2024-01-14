@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+
+{% block title %}
+    Profile {{ user.username }}
+{% endblock %}
+
+{% block content %}
+
+    <div class="container ">
+        <h1>Профиль {{ user.username }}</h1>
+        
+
+        <div class="list-group-item">
+            
+                {% for tag in tags %}
+                    <span class="me-2 badge text-bg-primary">{{ tag.name }}</span>
+                {% endfor %}
+            
+        </div>
+        
+
+        <form action="{% url 'profile-view' user.username %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label">Имя</label>
+                <input name="first_name" type="text" class="form-control" id="exampleFormControlInput1"
+                       value="{{ user.first_name }}">
+            </div>
+
+            <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label">Фамилия</label>
+                <input name="last_name" type="text" class="form-control" id="exampleFormControlInput1"
+                       value="{{ user.last_name }}">
+            </div>
+
+            <div class="mb-3">
+                <label for="exampleFormControlInput1" class="form-label">Номер телефона</label>
+                <input name="phone" type="text" class="form-control" id="exampleFormControlInput1"
+                       value="{{ user.phone }}">
+            </div>
+
+
+            <button type="submit" class="btn btn-outline-primary">Изменить</button>
+
+        </form>
+    </div>
+{% endblock %}

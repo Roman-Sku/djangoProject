@@ -10,7 +10,7 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.contrib.auth.decorators import login_required
 
 from project import settings
-from .models import Note, User
+from .models import Note, User, Tag
 
 
 def home_page_view(request: WSGIRequest):
@@ -172,3 +172,16 @@ def notes_by_user_view(request: WSGIRequest, user_username: str):
     queryset = Note.objects.filter(user=user)
     return render(request, "user_posts_list.html", {"notes": queryset, "username": user_username})
 
+
+def profile_view(request: WSGIRequest, username):
+    if request.method == 'POST':
+        user = User.objects.get(username=username)
+        user.first_name = request.POST.get("first_name", user.first_name)
+        user.last_name = request.POST.get("last_name", user.last_name)
+        user.phone = request.POST.get("phone", user.phone)
+        user.save()
+        return HttpResponseRedirect(reverse("home",))
+    user = User.objects.get(username=username)
+    tags_queryset = Tag.objects.filter(notes__user=user).distinct()
+
+    return render(request, 'profile.html', {'tags': tags_queryset})

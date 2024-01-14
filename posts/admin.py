@@ -62,10 +62,10 @@ class NoteAdmin(admin.ModelAdmin):
 class UserAdmin(admin.ModelAdmin):
     list_display = ["is_active", 'username', 'first_name', 'last_name', 'note_count']
     search_fields = ['username', 'first_name']
-    actions = ["block_user", ]
+    actions = ["is_active_switch"]
 
-    @admin.action(description='Block User')
-    def block_user(self, request, queryset):
+    @admin.action(description='is_active_switch')
+    def is_active_switch(self, request, queryset):
         queryset.update(is_active=True)
 
     fieldsets = (
@@ -93,7 +93,7 @@ class UserAdmin(admin.ModelAdmin):
         ("Важные даты", {"fields": ("last_login", "date_joined")}),
     )
 
-    @admin.display(description='Number of notes')
+    @admin.display(description='Кол-во заметок')
     def note_count(self, obj):
         return obj.note_set.count()
 
