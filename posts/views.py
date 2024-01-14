@@ -98,17 +98,15 @@ def general_info_view(request: WSGIRequest):
 
 
 def redact_note_view(request: WSGIRequest, note_uuid):
-    note = Note.objects.get(uuid=note_uuid)
-    if request.user != note.user:
-        return HttpResponseForbidden("You do not have permission to delete this note")
     try:
-        Note.objects.get(uuid=note_uuid)
-
+        note = Note.objects.get(uuid=note_uuid)
     except Note.DoesNotExist:
         raise Http404
 
-    if request.user == note.user:
-        if request.method == "POST":
+    if request.user != note.user:
+        return HttpResponseForbidden("You do not have permission to")
+
+    if request.method == "POST":
             note.content = request.POST["content"]
             note.title = request.POST["title"]
             note.mod_time = timezone.now()
