@@ -17,7 +17,7 @@
 <div class="container">
     <h1>Редактирование заметки</h1>
 
-    <form action="{% url 'redact-note' note.uuid %}" method="post">
+    <form action="{% url 'redact-note' note.uuid %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         
         <div class="mb-3">

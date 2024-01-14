@@ -1,3 +1,5 @@
+import os
+
 from django.utils import timezone
 
 from django.shortcuts import render
@@ -5,7 +7,9 @@ from django.urls import reverse
 from django.db.models import Q
 from django.http import HttpResponseRedirect, Http404, HttpRequest
 from django.core.handlers.wsgi import WSGIRequest
+from django.contrib.auth.decorators import login_required
 
+from project import settings
 from .models import Note, User
 
 
@@ -62,13 +66,15 @@ def filter_notes_view(request: WSGIRequest):
     return render(request, "home.html", context)
 
 
+@login_required
 def create_note_view(request: WSGIRequest):
     if request.method == "POST":
         print(request.FILES)
         note = Note.objects.create(
             title=request.POST["title"],
             content=request.POST["content"],
-            user=request.user
+            user=request.user,
+            image=request.FILES.get("noteImage")
         )
         return HttpResponseRedirect(reverse('show-note', args=[note.uuid]))
 
@@ -102,6 +108,13 @@ def redact_note_view(request: WSGIRequest, note_uuid):
         note.content = request.POST["content"]
         note.title = request.POST["title"]
         note.mod_time = timezone.now()
+        new_image = request.FILES.get("noteImage")
+        if new_image:
+            if note.image:
+                old_path = os.path.join(settings.MEDIA_ROOT, note.image.name)
+                if os.path.isfile(old_path):
+                    os.remove(old_path)
+            note.image = new_image
         note.save()
         return HttpResponseRedirect(reverse('show-note', args=[note.uuid]))
 
@@ -158,5 +171,5 @@ def register(request: WSGIRequest):
 def notes_by_user_view(request: WSGIRequest, user_username: str):
     user = User.objects.get(username=user_username)
     queryset = Note.objects.filter(user=user)
-    return render(request, "posts-lists.html", {"notes": queryset})
+    return render(request, "user_posts_list.html", {"notes": queryset, "username": user_username})
 

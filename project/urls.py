@@ -34,6 +34,6 @@ urlpatterns = [
     path("us", views.general_info_view, name="general_info"),
     path("redact/<note_uuid>", views.redact_note_view, name="redact-note"),
     path("delete/<note_uuid>", views.delete_note_view, name="delete-note"),
-    path("/user/<user_username>/posts", views.notes_by_user_view, name="notes_by_user"),
+    path("user/<user_username>/posts", views.notes_by_user_view, name="notes_by_user"),
     re_path(r"^media/(?P<path>.*)$", serve, {"document_root": settings.MEDIA_ROOT}),
 ]

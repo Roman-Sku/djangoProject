@@ -10,7 +10,7 @@ from django.db import models
 
 
 class User(AbstractUser):
-    phone = models.CharField(max_length=11)
+    phone = models.CharField(max_length=11, null=True)
 
     class Meta:
         db_table = 'users'
@@ -45,4 +45,4 @@ def after_delete_note(sender, instance: Note, **kwargs):
 
         for file in note_media_folder.glob("*"):
             file.unlink(missing_ok=True)
-        note_media_folder.unlink(missing_ok=True)
+        note_media_folder.rmdir()

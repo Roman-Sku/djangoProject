@@ -12,7 +12,7 @@
             <p class="blog-post-meta">Последнее изменение: {{ note.mod_time }}</p>
             <p>{{ note.image }}</p>
         </div>
-
+        {% if user.is_authenticated and note.user.username == user.username %}
         <div class="btn-group" role="group" aria-label="Basic mixed styles example">
 
             <a class="btn btn-warning" href="{% url 'redact-note' note.uuid %}">Редактировать</a>
@@ -22,15 +22,16 @@
                 <button type="submit" class="btn btn-danger">Удалить</button>
             </form>
         </div>
+        {% endif %}
 
         <hr>
-        
+
         {% if note.image %}
             <div class="d-flex justify-content-center">
                 <img style="max-height: 150px;" src="{{ note.image.url }}">
             </div>
         {% endif %}
-        
+
         <div>{{ note.content | safe | linebreaks }}</div>
 
     </div>
