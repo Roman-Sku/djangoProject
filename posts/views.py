@@ -1,7 +1,7 @@
 import os
 
 from django.utils import timezone
-
+from django.http import HttpResponseForbidden
 from django.shortcuts import render
 from django.urls import reverse
 from django.db.models import Q
@@ -109,13 +109,7 @@ def redact_note_view(request: WSGIRequest, note_uuid):
             note.content = request.POST["content"]
             note.title = request.POST["title"]
             note.mod_time = timezone.now()
-            new_image = request.FILES.get("noteImage")
-            if new_image:
-                if note.image:
-                    old_path = os.path.join(settings.MEDIA_ROOT, note.image.name)
-                    if os.path.isfile(old_path):
-                        os.remove(old_path)
-                note.image = new_image
+            note.image = request.FILES.get("noteImage")
             note.save()
             return HttpResponseRedirect(reverse('show-note', args=[note.uuid]))
 
@@ -123,6 +117,9 @@ def redact_note_view(request: WSGIRequest, note_uuid):
 
 
 def delete_note_view(request: WSGIRequest, note_uuid: str):
+    note = Note.objects.get(uuid=note_uuid)
+    if request.user != note.user:
+        return HttpResponseForbidden("You do not have permission to delete this note")
     if request.method == "POST":
         Note.objects.filter(uuid=note_uuid).delete()
     return HttpResponseRedirect(reverse("home"))
