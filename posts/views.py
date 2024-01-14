@@ -122,7 +122,7 @@ def delete_note_view(request: WSGIRequest, note_uuid: str):
     if request.user != note.user:
         return HttpResponseForbidden("You do not have permission to delete this note")
     if request.method == "POST":
-        note.delete()
+        Note.objects.get(uuid=note_uuid).delete()
     return HttpResponseRedirect(reverse("home"))
 
 

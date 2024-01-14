@@ -10,10 +10,21 @@ from django.db import models
 
 
 class User(AbstractUser):
-    phone = models.CharField(max_length=11, null=True)
+    """
+    Наследуем все поля из `AbstractUser`
+    И добавляем новое поле `phone`
+    """
+    phone = models.CharField(max_length=11, null=True, blank=True)
 
     class Meta:
-        db_table = 'users'
+        db_table = "users"
+
+
+class Tag(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
 
 
 def upload_to(instance: "Note", filename: str) -> str:
@@ -29,9 +40,13 @@ class Note(models.Model):
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to=upload_to, null=True, blank=True, verbose_name="Превью")
-    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     objects = models.Manager()  # Он подключается к базе.
     mod_time = models.DateTimeField(null=True, blank=True, db_index=True, default=None)
+    tags = models.ManyToManyField(Tag, related_name="notes", verbose_name="Теги")
+
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, verbose_name="Владелец")
+    # `on_delete=models.CASCADE`
+    # При удалении пользователя, удалятся все его записи.
 
     class Meta:
         # db_table = 'notes'  # Название таблицы в базе.

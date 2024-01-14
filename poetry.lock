@@ -38,6 +38,38 @@ argon2 = ["argon2-cffi (>=19.1.0)"]
 bcrypt = ["bcrypt"]
 
 [[package]]
+name = "django-ckeditor"
+version = "6.7.0"
+description = "Django admin CKEditor integration."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "django-ckeditor-6.7.0.tar.gz", hash = "sha256:0489f7a6ae93360d328f77cea17c04891103cbdfa6c962af386bbe47e811671b"},
+    {file = "django_ckeditor-6.7.0-py3-none-any.whl", hash = "sha256:73399fb8f56f565e7519b57adbd7c585623db2cdc8c75666f56918d3eecf7906"},
+]
+
+[package.dependencies]
+Django = ">=3.2"
+django-js-asset = ">=2.0"
+
+[[package]]
+name = "django-js-asset"
+version = "2.2.0"
+description = "script tag with additional attributes for django.forms.Media"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "django_js_asset-2.2.0-py3-none-any.whl", hash = "sha256:7ef3e858e13d06f10799b56eea62b1e76706f42cf4e709be4e13356bc0ae30d8"},
+    {file = "django_js_asset-2.2.0.tar.gz", hash = "sha256:0c57a82cae2317e83951d956110ce847f58ff0cdc24e314dbc18b35033917e94"},
+]
+
+[package.dependencies]
+django = ">=3.2"
+
+[package.extras]
+tests = ["coverage"]
+
+[[package]]
 name = "sqlparse"
 version = "0.4.4"
 description = "A non-validating SQL parser."
@@ -78,4 +110,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "6f6888acedc2f7cae676a140a77122b48fd8a5fddec609a2e0666abe2fd1292f"
+content-hash = "cb8852115e33f8f2b0967334eedca602bdc16e3695271f7778222823089dfcf7"
