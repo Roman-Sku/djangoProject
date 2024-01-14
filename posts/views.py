@@ -98,8 +98,11 @@ def general_info_view(request: WSGIRequest):
 
 
 def redact_note_view(request: WSGIRequest, note_uuid):
+    note = Note.objects.get(uuid=note_uuid)
+    if request.user != note.user:
+        return HttpResponseForbidden("You do not have permission to delete this note")
     try:
-        note = Note.objects.get(uuid=note_uuid)
+        Note.objects.get(uuid=note_uuid)
 
     except Note.DoesNotExist:
         raise Http404
@@ -121,7 +124,7 @@ def delete_note_view(request: WSGIRequest, note_uuid: str):
     if request.user != note.user:
         return HttpResponseForbidden("You do not have permission to delete this note")
     if request.method == "POST":
-        Note.objects.filter(uuid=note_uuid).delete()
+        note.delete()
     return HttpResponseRedirect(reverse("home"))
 
 
