@@ -38,8 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'posts.apps.PostsConfig',
+    'django.contrib.postgres',
     'ckeditor',
     'rest_framework',
+    "rest_framework.authtoken",
+    "rest_framework_simplejwt.token_blacklist",
+    "djoser",
 ]
 
 AUTH_USER_MODEL = "posts.User"
@@ -88,6 +92,19 @@ DATABASES = {
         "HOST": "localhost",
         "PORT": 5432,
     }
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    # "PAGE_SIZE": 2,
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        "rest_framework.authentication.TokenAuthentication",  # Для работы djoser.
+        "rest_framework_simplejwt.authentication.JWTAuthentication",  # Для работы JWT.
+    ]
 }
 
 

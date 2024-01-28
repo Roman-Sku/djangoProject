@@ -10,11 +10,11 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email', 'phone']
 
 
-class TagSerializer(serializers.ModelSerializer):
+class TagListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fields = ["id", "name"]
-        read_only_fields = ["id"]
+        fields = ['id', 'name']
+        write_only_fields = ['name']
 
 
 class ImageSerializer(serializers.Serializer):
@@ -26,7 +26,7 @@ class ImageSerializer(serializers.Serializer):
 
 class NoteSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
-    tags = TagSerializer(many=True)
+    tags = TagListSerializer(many=True)
 
     class Meta:
         model = Note
@@ -52,7 +52,7 @@ class NoteSerializer(serializers.ModelSerializer):
 
 class NoteListSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
-    tags = TagSerializer(many=True)
+    tags = TagListSerializer(many=True)
 
     class Meta:
         model = Note

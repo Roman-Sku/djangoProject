@@ -1,8 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.decorators import api_view
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.serializers import ModelSerializer
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import PageNumberPagination
@@ -11,16 +10,17 @@ from django.conf import settings
 import uuid
 
 from posts.api.permissions import IsOwnerOrReadOnly
-from posts.api.serializers import UserSerializer, TagSerializer, ImageSerializer, NoteSerializer, NoteListSerializer, NoteDetailSerializer, NoteCreateSerializer
+from posts.api.serializers import ImageSerializer, NoteSerializer, NoteListSerializer, \
+    TagListSerializer, NoteDetailSerializer, NoteCreateSerializer
 
-from posts.models import Note, Tag, User
+from posts.models import Note, Tag
 
 
 class NoteListCreateAPIView(ListCreateAPIView):
     queryset = Note.objects.all()
     permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = [SearchFilter, OrderingFilter]  # Реагирует на (query) параметр `search`
-    search_fields = ['@title', '@description']  # Используем полнотекстовый поиск Postgres
+    search_fields = ['@title', '@content']  # Используем полнотекстовый поиск Postgres
     ordering_fields = ["created_at", "mode_time", "user_username"]
     pagination_class = PageNumberPagination
 
@@ -107,3 +107,9 @@ class UploadImageAPIView(GenericAPIView):
             image_file.write(image.read())
         return Response({"name": image.name, "url": "images/" + image.name})
 
+
+class TagListCreateApiView(ListCreateAPIView):
+    queryset = Tag.objects.all()
+    serializer_class = TagListSerializer
+    lookup_field = 'id'
+    permission_classes = [IsAuthenticatedOrReadOnly]
