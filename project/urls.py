@@ -24,7 +24,7 @@ from rest_framework_simplejwt.views import (
     TokenVerifyView,
 )
 
-from posts import views
+from posts import views, history_service
 
 
 urlpatterns = [
@@ -50,4 +50,5 @@ urlpatterns = [
     path("api/auth/", include("djoser.urls.authtoken")),
     path("api/auth/", include("djoser.urls.jwt")),
     path("api/auth/", include("djoser.urls.base")),
+    path("history", views.ListHistoryView.as_view(), name='history')
 ]

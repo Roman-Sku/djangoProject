@@ -8,6 +8,8 @@ from django.db.models import Q
 from django.http import HttpResponseRedirect, Http404, HttpRequest
 from django.core.handlers.wsgi import WSGIRequest
 from django.contrib.auth.decorators import login_required
+from django.views import View
+from .history_service import HistoryService
 
 from project import settings
 from .models import Note, User, Tag
@@ -90,6 +92,8 @@ def show_note_view(request: WSGIRequest, note_uuid):
         # Если не найдено такой записи.
         raise Http404
 
+    service = HistoryService(request)
+    service.add_to_history(note)
     return render(request, "note.html", {"note": note})
 
 
@@ -185,3 +189,13 @@ def profile_view(request: WSGIRequest, username):
     tags_queryset = Tag.objects.filter(notes__user=user).distinct()
 
     return render(request, 'profile.html', {'tags': tags_queryset})
+
+
+class ListHistoryView(View):
+    def get(self, request: WSGIRequest):
+        """
+        Метод `get` вызывается автоматический, когда HTTP метод запроса является `GET`.
+        """
+        favorite_service = HistoryService(request)
+        queryset = Note.objects.filter(uuid__in=favorite_service.history_ids)
+        return render(request, "home.html", {"notes": queryset})
