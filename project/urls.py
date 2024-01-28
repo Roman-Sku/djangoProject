@@ -38,4 +38,5 @@ urlpatterns = [
     re_path(r"^media/(?P<path>.*)$", serve, {"document_root": settings.MEDIA_ROOT}),
     path('ckeditor/', include('ckeditor_uploader.urls')),
     path("profile/<username>", views.profile_view, name="profile-view"),
+    path('api/posts', include('posts.api.urls'))
 ]

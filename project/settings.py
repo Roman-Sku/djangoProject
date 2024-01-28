@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'posts.apps.PostsConfig',
     'ckeditor',
+    'rest_framework',
 ]
 
 AUTH_USER_MODEL = "posts.User"
