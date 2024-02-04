@@ -2,13 +2,19 @@ import os
 
 from django.utils import timezone
 from django.http import HttpResponseForbidden
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
-from django.db.models import Q
+from django.db.models import Q, Case, When
 from django.http import HttpResponseRedirect, Http404, HttpRequest
 from django.core.handlers.wsgi import WSGIRequest
 from django.contrib.auth.decorators import login_required
 from django.views import View
+from django.utils.encoding import force_str
+from django.utils.http import urlsafe_base64_decode
+from django.contrib.auth.tokens import default_token_generator
+
+from .email import ConfirmUserRegisterEmailSender, ConfirmUserResetPasswordEmailSender
+from .forms import ResetForm, RegisterForm
 from .history_service import HistoryService
 
 from project import settings
@@ -141,7 +147,7 @@ def register(request: WSGIRequest):
             {"errors": "Укажите все поля!"}
         )
     print(User.objects.filter(
-            Q(username=request.POST["username"]) | Q(email=request.POST["email"])
+        Q(username=request.POST["username"]) | Q(email=request.POST["email"])
     ))
     # Если уже есть такой пользователь с username или email.
     if User.objects.filter(
@@ -163,12 +169,50 @@ def register(request: WSGIRequest):
 
     # Создадим учетную запись пользователя.
     # Пароль надо хранить в БД в шифрованном виде.
-    User.objects.create_user(
+    user = User.objects.create_user(
         username=request.POST["username"],
         email=request.POST["email"],
         password=request.POST["password1"]
     )
+
+    ConfirmUserRegisterEmailSender(request, user).send_mail()
+
+    if user is not None:
+        return HttpResponseRedirect(reverse("login"))
+
     return HttpResponseRedirect(reverse('home'))
+
+
+def register_view(request: WSGIRequest):
+    form = RegisterForm()
+
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = User.objects.create_user(
+                username=form.cleaned_data['username'],
+                email=form.cleaned_data['email'],
+                password=form.cleaned_data['password1'],
+                is_active=False,
+            )
+
+            ConfirmUserRegisterEmailSender(request, user).send_mail()
+
+            return HttpResponseRedirect(reverse("login"))
+
+    return render(request, 'registration/register-form.html', {'form': form})
+
+
+def confirm_register_view(request: WSGIRequest, uidb64: str, token: str):
+    username = force_str(urlsafe_base64_decode(uidb64))
+
+    user = get_object_or_404(User, username=username)
+    if default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save(update_fields=["is_active"])
+        return HttpResponseRedirect(reverse("login"))
+
+    return render(request, "registration/invalid-email-confirm.html", {"username": user.username})
 
 
 def notes_by_user_view(request: WSGIRequest, user_username: str):
@@ -196,6 +240,37 @@ class ListHistoryView(View):
         """
         Метод `get` вызывается автоматический, когда HTTP метод запроса является `GET`.
         """
-        favorite_service = HistoryService(request)
-        queryset = Note.objects.filter(uuid__in=favorite_service.history_ids)
+        history_service = HistoryService(request)
+        ids = history_service.history_ids[::-1]
+        queryset = Note.objects.filter(uuid__in=ids)
         return render(request, "home.html", {"notes": queryset})
+
+
+def reset_view(request: WSGIRequest):
+    form = ResetForm()
+
+    if request.method == 'POST':
+
+        username = request.POST.get("username")
+
+        form = ResetForm(request.POST)
+        if form.is_valid():
+            user = get_object_or_404(User, username=username)
+            ConfirmUserResetPasswordEmailSender(request, user).send_mail()
+            # Подтверждение по email.
+            return HttpResponseRedirect(reverse("login"))
+
+    return render(request, 'registration/reset-form.html', {'form': form})
+
+
+def confirm_reset_view(request: WSGIRequest, uidb64: str, token: str):
+    username = force_str(urlsafe_base64_decode(uidb64))
+
+    user = get_object_or_404(User, username=username)
+    if default_token_generator.check_token(user, token):
+        new_password = request.POST.get("password1")
+        user.set_password(new_password)
+        user.save()
+        return HttpResponseRedirect(reverse("login"))
+
+    return render(request, "registration/invalid-email-confirm.html", {"username": user.username})

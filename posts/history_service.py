@@ -19,17 +19,15 @@ class HistoryService:
 
     def add_to_history(self, note: Note) -> None:
         self._session["history"].append(str(note.uuid))
-        self._session.save()
         self.remove_from_history(note.uuid)
+        self._session.save()
 
-    def remove_from_history(self, note: Note) -> None:
+    def remove_from_history(self, note_uuid: int) -> None:
         history: list = self._session["history"]
         if len(history) > 20:
             history.pop(0)
-# ?!        if note.uuid in history:
-# ?!            history.remove(note.uuid)
-# ?!            self.add_to_history(note.uuid)
-# ?!            self._session.save()
+        if note_uuid in history:
+            history.remove(note_uuid)
 
     @property
     def history_ids(self) -> list[int]:

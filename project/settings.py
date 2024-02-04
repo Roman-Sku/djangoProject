@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "rest_framework_simplejwt.token_blacklist",
     "djoser",
+    "crispy_forms",
+    "crispy_bootstrap5",
 ]
 
 AUTH_USER_MODEL = "posts.User"
@@ -57,6 +59,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'posts.logfilemiddleware.SimpleMiddleware'
 ]
 
 ROOT_URLCONF = 'project.urls'
@@ -78,6 +81,9 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'project.wsgi.application'
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 
 # Database
@@ -139,7 +145,17 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
+# EMAIL
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_PORT = 465
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', "romain.skuratovitch@ya.ru")
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', "romain.skuratovitch@ya.ru")
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', "fguzviabcpksdxlg")
+
+
+# Static files (CSS, JavaScript, Images)   fguzviabcpksdxlg    romain.skuratovitch@ya.ru
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 # Префикс, по которому Django понимает,
