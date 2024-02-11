@@ -14,7 +14,7 @@ from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
 
 from .email import ConfirmUserRegisterEmailSender, ConfirmUserResetPasswordEmailSender
-from .forms import ResetForm, RegisterForm
+from .forms import ResetForm, RegisterForm, SetPasswordForm
 from .history_service import HistoryService
 
 from project import settings
@@ -255,7 +255,7 @@ def reset_view(request: WSGIRequest):
 
         form = ResetForm(request.POST)
         if form.is_valid():
-            user = get_object_or_404(User, username=username)
+            user = User.objects.get(email=form.cleaned_data["email"])
             ConfirmUserResetPasswordEmailSender(request, user).send_mail()
             # Подтверждение по email.
             return HttpResponseRedirect(reverse("login"))
@@ -265,12 +265,16 @@ def reset_view(request: WSGIRequest):
 
 def confirm_reset_view(request: WSGIRequest, uidb64: str, token: str):
     username = force_str(urlsafe_base64_decode(uidb64))
-
+    form = SetPasswordForm()
     user = get_object_or_404(User, username=username)
     if default_token_generator.check_token(user, token):
-        new_password = request.POST.get("password1")
-        user.set_password(new_password)
-        user.save()
-        return HttpResponseRedirect(reverse("login"))
-
+        if request.method == 'POST':
+            form = SetPasswordForm(request.POST)
+            print(f'------------------------------------------------{request.POST}-------------------------------')
+            if form.is_valid():
+                new_password = form.cleaned_data["password"]
+                user.set_password(new_password)
+                user.save()
+                return HttpResponseRedirect(reverse("login"))
+        return render(request, 'registration/reset-password-form.html', {"form": form})
     return render(request, "registration/invalid-email-confirm.html", {"username": user.username})
