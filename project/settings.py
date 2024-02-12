@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-w@ff4kv3=u8q46@8jdcgdn%1nn3jo(47pq1_5#+z0rd$e2220b')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', '0') == "1"
@@ -106,11 +106,10 @@ DATABASES = {
 
 
 REDIS_CACHE = os.environ.get('DATABASE_CACHE_URL')
-
 if REDIS_CACHE:
     CACHES = {
         "default": {
-            'ENGINE': 'django.core.cache.backends.redis.RedisCache',
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
             'LOCATION': REDIS_CACHE,
             'KEY_PREFIX': 'test_django_notes_' if DEBUG else 'django_notes_',
         }
@@ -118,7 +117,7 @@ if REDIS_CACHE:
 else:
     CACHES = {
         "default": {
-            'ENGINE': 'django.core.cache.backends.locmem.LocMemCache',
+            'BACKEND    ': 'django.core.cache.backends.locmem.LocMemCache',
             'KEY_PREFIX': 'test_django_notes_' if DEBUG else 'django_notes_',
             'OPTIONS': {
                 "MAX_ENTRIES": 10,
