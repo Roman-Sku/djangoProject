@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "djangoproject"
+name = "project"
 version = "0.1.0"
 description = ""
 authors = ["Roman_Sku <romanskuratovich08@gmail.com>"]
