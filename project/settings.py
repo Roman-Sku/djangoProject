@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 import os
 import uuid
+from datetime import timedelta
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -21,12 +22,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-w@ff4kv3=u8q46@8jdcgdn%1nn3jo(47pq1_5#+z0rd$e2220b'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', '0') == "1"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -63,6 +64,8 @@ MIDDLEWARE = [
     'posts.logfilemiddleware.SimpleMiddleware'
 ]
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+
 ROOT_URLCONF = 'project.urls'
 
 TEMPLATES = [
@@ -93,13 +96,36 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': "posts",
-        "USER": "Roman",
-        "PASSWORD": "password",
-        "HOST": "localhost",
+        'NAME': os.environ.get('DATABASE_NAME'),
+        "USER": os.environ.get('DATABASE_USER'),
+        "PASSWORD": os.environ.get('DATABASE_PASSWORD'),
+        "HOST": os.environ.get('DATABASE_HOST'),
         "PORT": 5432,
     }
 }
+
+
+REDIS_CACHE = os.environ.get('DATABASE_CACHE_URL')
+
+if REDIS_CACHE:
+    CACHES = {
+        "default": {
+            'ENGINE': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': REDIS_CACHE,
+            'KEY_PREFIX': 'test_django_notes_' if DEBUG else 'django_notes_',
+        }
+    }
+else:
+    CACHES = {
+        "default": {
+            'ENGINE': 'django.core.cache.backends.locmem.LocMemCache',
+            'KEY_PREFIX': 'test_django_notes_' if DEBUG else 'django_notes_',
+            'OPTIONS': {
+                "MAX_ENTRIES": 10,
+                'CULL_FREQUENCY': 2,
+            }
+        }
+    }
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
@@ -262,4 +288,44 @@ CKEDITOR_CONFIGS = {
         # 'filebrowserUploadUrl': "/upload",
         # 'filebrowserBrowseUrl': "/browse",
     }
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "UPDATE_LAST_LOGIN": True,
+
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": SECRET_KEY,
+    "VERIFYING_KEY": "",
+    "AUDIENCE": None,
+    "ISSUER": None,
+    "JSON_ENCODER": None,
+    "JWK_URL": None,
+    "LEEWAY": 0,
+
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
+    "USER_ID_FIELD": "id",
+    "USER_ID_CLAIM": "user_id",
+    "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
+
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+    "TOKEN_TYPE_CLAIM": "token_type",
+    "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
+
+    "JTI_CLAIM": "jti",
+
+    "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
+    "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
+    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
+
+    "TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainPairSerializer",
+    "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
+    "TOKEN_VERIFY_SERIALIZER": "rest_framework_simplejwt.serializers.TokenVerifySerializer",
+    "TOKEN_BLACKLIST_SERIALIZER": "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
+    "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
+    "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
