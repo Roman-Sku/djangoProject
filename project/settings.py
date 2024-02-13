@@ -117,7 +117,7 @@ if REDIS_CACHE:
 else:
     CACHES = {
         "default": {
-            'BACKEND    ': 'django.core.cache.backends.locmem.LocMemCache',
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
             'KEY_PREFIX': 'test_django_notes_' if DEBUG else 'django_notes_',
             'OPTIONS': {
                 "MAX_ENTRIES": 10,
