@@ -188,10 +188,12 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', "fguzviabcpksdxlg")
 # что данный URL необходимо рассматривать как файл в папке со статикой.
 STATIC_URL = 'static/'
 
-# Собственно папки со статикой.
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
+if os.environ.get('COLLECT_STATIC'):
+    STATIC_ROOT = "/var/www/django-notes/static/"
+else:
+    STATICFILES_DIRS = [
+        BASE_DIR / 'static',
+    ]
 
 
 MEDIA_ROOT = BASE_DIR / 'media'  # Корень для сохранения медиа файлов.
