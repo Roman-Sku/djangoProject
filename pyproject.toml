@@ -13,7 +13,7 @@ djangorestframework = "^3.14.0"
 djangorestframework-simplejwt = {extras = ["crypto"], version = "^5.3.1"}
 djoser = "^2.2.2"
 crispy-bootstrap5 = "^2023.10"
-psycopg2 = "^2.9.9"
+# psycopg2 = "^2.9.9"
 gunicorn = "^21.2.0"
 
 
